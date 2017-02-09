@@ -11,6 +11,14 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', 'ArticleController@getArticles');
+Route::get('/admin', 'Admin\AdminController@index');
+Route::get('/auth', 'Auth\AuthController@index');
+Route::get('/register', 'Auth\AuthController@register');
+Route::get('/article/{article_id}', function($article_id){
+    $article = new \App\Http\Controllers\ArticleController();
+    return $article->getArticle($article_id);
 });
+
+Route::post('/auth', 'Auth\AuthController@loginUser');
+Route::post('/register', 'Auth\AuthController@createUser');

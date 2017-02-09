@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Hash;
 use App\User;
 use Validator;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
@@ -43,7 +45,7 @@ class AuthController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
@@ -55,10 +57,17 @@ class AuthController extends Controller
         ]);
     }
 
+    protected function validateUser(array $data){
+        return Validator::make($data, [
+            'email' => 'required|email|max:255',
+            'password' => 'required|min:6',
+        ]);
+    }
+
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return User
      */
     protected function create(array $data)
@@ -68,5 +77,52 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
+    }
+
+    public function index($error = false)
+    {
+        $auth = view('components.auth', array('error' => $error));
+        return view('template', array('title' => 'Sign In', 'content' => $auth));
+    }
+
+    public function register($error = false)
+    {
+        $register = view('components.register', array('error' => $error));
+        return view('template', array('title' => 'Sign Up', 'content' => $register));
+    }
+
+    public function loginUser(Request $request)
+    {
+        $data = $request->input();
+        $validator = $this->validateUser($data);
+        if(!$validator->fails()){
+            $user = User::where('email', $data['email'])->first();
+            if(password_verify($data['password'], $user['original']['password'])){
+                $request->session()->push('user_id', $user['original']['id']);
+                if($user['original']['status'] == 1){
+                    $request->session()->push('user_status', 'admin');
+                    return redirect('/admin');
+                }else{
+                    return redirect('/');
+                }
+            }
+        }else{
+            $error = 'Invalid email or password';
+            return $this->index($error);
+        }
+    }
+
+    public function createUser(Request $request)
+    {
+        $data = $request->all();
+        $validator = $this->validator($data);
+        if(!$validator->fails()){
+            $user = $this->create($data);
+            $request->session()->push('user_id', $user->get()[0]['original']['id']);
+            return redirect('/');
+        }else{
+            $errors = 'Registration error. Check yout password and email';
+            return $this->register($errors);
+        }
     }
 }
