@@ -4,25 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Client;
 use App\Http\Requests;
-use Illuminate\Support\Facades\Redis;
+use App\Models;
 
 class StatisticController extends Controller
 {
     public function addClient(Request $request)
     {
-        $data = $request->all();
-        $client = array();
-        $client['location'] = $data;
-        $client['host'] = $_SERVER['HTTP_REFERER'];
-        $client['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
-        $client['date'] = time();
-        $client = new Client($client);
-
-        Redis::connection();
-        Redis::set('session_'.$request->session()->getId().'_'.time(), serialize($client));
-        Redis::lpush('key_test', (string)time());
-        return Redis::get('session_'.$request->session()->getId().'_'.time());
+        $location = $request->all();
+        $data['location'] = $location;
+        $data['referer'] = $_SERVER['HTTP_REFERER'];
+        $data['host'] = $_SERVER['REMOTE_ADDR'];
+        $data['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
+        
+        $statistic = new Models\Statistic($request);
+        $statistic->addClient($data);
     }
 }

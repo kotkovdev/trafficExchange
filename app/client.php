@@ -8,12 +8,14 @@ class Client
     protected $host;
     protected $userAgent;
     protected $date;
+    protected $ip;
 
     public function __construct(array $data)
     {
         $this->location      = $data['location'];
-        $this->host          = $data['host'];
+        $this->referer          = $data['referer'];
         $this->userAgent     = $data['userAgent'];
         $this->date          = $data['date'];
+        $this->host            = $data['host'];
     }
 }
