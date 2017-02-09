@@ -118,7 +118,7 @@ class AuthController extends Controller
         $validator = $this->validator($data);
         if(!$validator->fails()){
             $user = $this->create($data);
-            $request->session()->push('user_id', $user->get()[0]['original']['id']);
+            $request->session()->push('user_id', $user->first()['original']['id']);
             return redirect('/');
         }else{
             $errors = 'Registration error. Check yout password and email';

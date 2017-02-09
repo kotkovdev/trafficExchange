@@ -20,5 +20,12 @@ Route::get('/article/{article_id}', function($article_id){
     return $article->getArticle($article_id);
 });
 
+Route::get('/redis', function(){
+    Redis::connection();
+    Redis::set('testKey', 'testVal');
+    return Redis::get('testKey');
+});
+
+Route::post('/statistic', 'StatisticController@addClient');
 Route::post('/auth', 'Auth\AuthController@loginUser');
 Route::post('/register', 'Auth\AuthController@createUser');

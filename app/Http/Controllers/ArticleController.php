@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ArticleController;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
