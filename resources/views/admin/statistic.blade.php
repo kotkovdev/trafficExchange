@@ -112,7 +112,7 @@
         <table class="table">
             <tr>
                 <td>Total unique views:</td>
-                <td>{{$hosts_count}}</td>
+                <td>{{$cookies_count}}</td>
             </tr>
         </table>
     </div>

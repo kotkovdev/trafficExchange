@@ -6,12 +6,19 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Statistic;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $content = view('admin.main');
+        $statistic = new Statistic($request);
+        $stat = array();
+        $stat['browsers'] = $statistic->getBrowserStatistic();
+        $stat['OS'] = $statistic->getOSStatistic();
+        $stat['regions'] = $statistic->getRegionStatistic();
+        $stat['refs'] = $statistic->getRefStatistic();
+        $content = view('admin.main', $stat);
         return view('admin.template', array('content' => $content));
     }
 }

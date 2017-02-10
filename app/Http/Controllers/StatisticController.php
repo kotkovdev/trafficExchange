@@ -30,6 +30,7 @@ class StatisticController extends Controller
         $stat['cookies'] = $statistic->getCookieStatistic();
         $stat['hits_count'] = count($stat['clients']);
         $stat['hosts_count'] = count($stat['hosts']);
+        $stat['cookies_count'] = count($stat['cookies']);
         $content = view('admin.statistic', $stat);
         return view('admin.template', array('content' => $content));
     }

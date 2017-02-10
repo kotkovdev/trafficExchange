@@ -13,7 +13,7 @@
 
 Route::get('/', 'ArticleController@getArticles');
 Route::get('/admin', 'Admin\AdminController@index');
-Route::get('/admin/statistic/{type}', 'StatisticController@getStatistic');
+Route::get('/admin/statistic', 'StatisticController@getStatistic');
 Route::get('/auth', 'Auth\AuthController@index');
 Route::get('/register', 'Auth\AuthController@register');
 Route::get('/article/{article_id}', function($article_id){

@@ -39,43 +39,21 @@ class Statistic
         Redis::lpush('city:'.$client['location']['city'], $this->key);
         Redis::lpush('cookie:'.$this->client->cookies, $this->key);
         Redis::lpush('host:'.$this->client->host, $this->key);
+        Redis::lpush('ref:'.$this->client->referer, $this->key);
     }
 
     public function getStatistic(array $params)
     {
-        switch($params['type']){
-            case 'browsers':
-                return $this->getBrowsersStatistic();
-                break;
-            case 'regions':
-                return $this->getRegionStatistic();
-                break;
-        }
+        return $this->getAllStatistic();
     }
 
-    public function getBrowsersStatistic()
+    public function getAllStatistic()
     {
         $browsers = Redis::keys('browser:*');
         $return = array();
         $clients = array();
         foreach($browsers as $browser) {
             $hits = Redis::command('lrange', [$browser, 0, 100]);
-            foreach($hits as $hit) {
-                $client = unserialize(Redis::get($hit));
-                $clients[] = $client;
-            }
-        }
-        $return['clients'] = $clients;
-        return $return;
-    }
-
-    public function getRegionStatistic()
-    {
-        $regions = Redis::keys('Region:*');
-        $return = array();
-        $clients = array();
-        foreach($regions as $region) {
-            $hits = Redis::command('lrange', [$region, 0, 100]);
             foreach($hits as $hit) {
                 $client = unserialize(Redis::get($hit));
                 $clients[] = $client;
@@ -96,11 +74,14 @@ class Statistic
                 $clients[] = Redis::get($cl);
             }
             $urls = array();
+            $hosts = array();
             foreach($clients as $client){
                 $client = unserialize($client);
                 $search = array_search($client->url, $urls);
-                if(is_array($urls) && $search === false){
+                $hSearch = array_search($client->host, $hosts);
+                if(is_array($urls) && $search === false && is_array($hosts) && $hSearch === false){
                     $urls[] = $client->url;
+                    $hosts[] = $client->host;
                     $return[] = $client;
                 }
             }
@@ -133,5 +114,86 @@ class Statistic
             unset($clients);
         }
         return $return;
+    }
+
+    private function calcViews($data)
+    {
+        $return = array();
+        foreach($data as $dt){
+            $dt_name = explode(':', $dt)[1];
+            $hits = Redis::command('lrange', [$dt, 0, 100]);
+            $return[$dt_name]['name'] = $dt_name;
+            $return[$dt_name]['hits'] = count($hits);
+            $return[$dt_name]['cookies'] = 0;
+            $return[$dt_name]['hosts'] = 0;
+            foreach($hits as $hit){
+                $clients = array();
+                $client = unserialize(Redis::get($hit));
+                $vizits = Redis::command('lrange', ['cookie:'.$client->cookies, 0, 1000]);
+                foreach($vizits as $vizit){
+                    $clients[] = Redis::get($vizit);
+                }
+                $urls = array();
+                foreach($clients as $client){
+                    $client = unserialize($client);
+                    $search = array_search($client->url, $urls);
+                    if(is_array($urls) && $search === false){
+                        $urls[] = $client->url;
+                        $return[$dt_name]['cookies'] += 1;
+                    }
+                }
+                unset($urls);
+                unset($clients);
+                break;
+            }
+            foreach($hits as $hit){
+                $clients = array();
+                $client = unserialize(Redis::get($hit));
+                $vizits = Redis::command('lrange', ['host:'.$client->host, 0, 1000]);
+                foreach($vizits as $vizit){
+                    $clients[] = Redis::get($vizit);
+                }
+                $urls = array();
+                $hosts = array();
+                foreach($clients as $client){
+                    $client = unserialize($client);
+                    $search = array_search($client->url, $urls);
+                    $hSearch = array_search($client->host, $hosts);
+                    if(is_array($urls) && $search === false && is_array($hosts) && $hSearch === false){
+                        $urls[] = $client->url;
+                        $hosts[] = $client->host;
+                        $return[$dt_name]['hosts'] += 1;
+                    }
+                }
+                unset($urls);
+                unset($clients);
+                break;
+            }
+        }
+        return $return;
+    }
+
+    public function getBrowserStatistic()
+    {
+        $browsers = Redis::keys('browser:*');
+        return $this->calcViews($browsers);
+    }
+
+    public function getRegionStatistic()
+    {
+        $regions = Redis::keys('region:*');
+        return $this->calcViews($regions);
+    }
+
+    public function getOSStatistic()
+    {
+        $oss = Redis::keys('os:*');
+        return $this->calcViews($oss);
+    }
+
+    public function getRefStatistic()
+    {
+        $refs = Redis::keys('ref:*');
+        return $this->calcViews($refs);
     }
 }
