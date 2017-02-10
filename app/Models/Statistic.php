@@ -78,8 +78,8 @@ class Statistic
             foreach($clients as $client){
                 $client = unserialize($client);
                 $search = array_search($client->url, $urls);
-                $hSearch = array_search($client->host, $hosts);
-                if(is_array($urls) && $search === false && is_array($hosts) && $hSearch === false){
+                //$hSearch = array_search($client->host, $hosts);
+                if(is_array($urls) && $search === false /*&& is_array($hosts) && $hSearch === false*/){
                     $urls[] = $client->url;
                     $hosts[] = $client->host;
                     $return[] = $client;
@@ -158,8 +158,8 @@ class Statistic
                 foreach($clients as $client){
                     $client = unserialize($client);
                     $search = array_search($client->url, $urls);
-                    $hSearch = array_search($client->host, $hosts);
-                    if(is_array($urls) && $search === false && is_array($hosts) && $hSearch === false){
+                    //$hSearch = array_search($client->host, $hosts);
+                    if(is_array($urls) && $search === false /*&& is_array($hosts) && $hSearch === false*/){
                         $urls[] = $client->url;
                         $hosts[] = $client->host;
                         $return[$dt_name]['hosts'] += 1;

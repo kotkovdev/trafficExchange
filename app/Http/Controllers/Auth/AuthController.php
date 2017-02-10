@@ -125,4 +125,10 @@ class AuthController extends Controller
             return $this->register($errors);
         }
     }
+
+    public function logout(Request $request)
+    {
+        $request->session()->remove('user_status');
+        return redirect('/');
+    }
 }

@@ -10,4 +10,5 @@ class Article extends Eloquent
 {
     protected $table = 'articles';
     protected $primaryKey = 'article_id';
+    protected $fillable = array('title', 'text');
 }

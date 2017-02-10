@@ -12,6 +12,9 @@ class AdminController extends Controller
 {
     public function index(Request $request)
     {
+        if($request->session()->get('user_status')[0] != 'admin'){
+            return redirect('/auth');
+        }
         $statistic = new Statistic($request);
         $stat = array();
         $stat['browsers'] = $statistic->getBrowserStatistic();
