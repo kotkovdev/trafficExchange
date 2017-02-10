@@ -36,7 +36,7 @@ class ArticleController extends Controller
 
     public function editArticle($article_id, $success = false, $error = false)
     {
-        $article = Article::find($article_id)->limit(1)->first();
+        $article = Article::where('article_id', $article_id)->first();
         $content = view('admin.articleForm', array('success' => $success, 'error' => $error, 'article' => $article));
         return view('admin.template', array('content' => $content));
     }
